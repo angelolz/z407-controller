@@ -1,0 +1,46 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs and test output
+*.log
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# OS-specific
+*.swp
+*~
+
+# dotenv or secret config files
+.env
+.env.*
+
+# pytest cache
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# compiled wheels
+*.whl
+
+# backups
+*.bak
