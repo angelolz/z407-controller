@@ -73,3 +73,19 @@ async def input_usb():
         return {"status": "switched to usb"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/bt-pair")
+async def pair():
+    try:
+        await z407_remote.bluetoth_pair()
+        return {"status": "pairing for new device"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/reset")
+async def reset():
+    try:
+        await z407_remote.reset()
+        return {"status": "reset device"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
