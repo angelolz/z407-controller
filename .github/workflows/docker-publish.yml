@@ -28,15 +28,8 @@ jobs:
 
       # Step 4: Build and push the Docker image
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
-
-      # Step 5: (Optional) Tag image with a version from Git tags or commit hash
-      - name: Tag Docker image with version
-        run: |
-          VERSION=$(echo ${GITHUB_SHA} | cut -c1-7)  # Short commit hash
-          docker tag ghcr.io/${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${VERSION}
-          docker push ghcr.io/${{ github.repository }}:${VERSION}
