@@ -17,7 +17,7 @@ class AsyncBleakScanner(BleakScanner):
     async def _device_found(self, device, advertisement_data):
         await self._device_queue.put(device)
 
-    async def async_discover(self, timeout=25):
+    async def async_discover(self, timeout=60):
         discovered_devices = set()
         await self.start()
         try:
