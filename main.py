@@ -1,11 +1,18 @@
 import asyncio
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 from z407 import Z407Remote
 from bleak import BleakScanner, BleakClient, BleakGATTCharacteristic
 SERVICE_UUID = "0000fdc2-0000-1000-8000-00805f9b34fb"
 
 app = FastAPI()
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 z407_remote = None
+
+@app.get("/")
+async def read_index():
+    return FileResponse('frontend/index.html')
 
 @app.on_event("startup")
 async def startup_event():
@@ -105,7 +112,7 @@ async def input_usb():
 @app.post("/bt-pair")
 async def pair():
     try:
-        await z407_remote.bluetoth_pair()
+        await z407_remote.bluetooth_pair()
         return {"status": "pairing for new device"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -113,7 +120,7 @@ async def pair():
 @app.post("/reset")
 async def reset():
     try:
-        await z407_remote.reset()
+        await z407_remote.factory_reset()
         return {"status": "reset device"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

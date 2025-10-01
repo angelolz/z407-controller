@@ -7,8 +7,6 @@ SERVICE_UUID = "0000fdc2-0000-1000-8000-00805f9b34fb"
 COMMAND_UUID = "c2e758b9-0e78-41e0-b0cb-98a593193fc5"
 RESPONSE_UUID = "b84ac9c6-29c5-46d4-bba1-9d534784330f"
 
-
-
 class Z407Remote:
     def __init__(self, address: str):
         self.address = address
@@ -30,6 +28,7 @@ class Z407Remote:
         await self.disconnect()
 
     async def _receive_data(self, sender: BleakGATTCharacteristic, data: bytearray):
+        # todo, describe commands
         print(bytes(data))
         match data:
             case b"\xd4\x05\x01":
