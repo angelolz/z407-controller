@@ -7,29 +7,6 @@ SERVICE_UUID = "0000fdc2-0000-1000-8000-00805f9b34fb"
 COMMAND_UUID = "c2e758b9-0e78-41e0-b0cb-98a593193fc5"
 RESPONSE_UUID = "b84ac9c6-29c5-46d4-bba1-9d534784330f"
 
-class AsyncBleakScanner(BleakScanner):
-    _device_queue: asyncio.Queue
-
-    def __init__(self, **kwargs):
-        super().__init__(self._device_found, **kwargs)
-        self._device_queue = asyncio.Queue()
-
-    async def _device_found(self, device, advertisement_data):
-        await self._device_queue.put(device)
-
-    async def async_discover(self, timeout=60):
-        discovered_devices = set()
-        await self.start()
-        try:
-            async with asyncio.timeout(timeout):
-                while True:
-                    device = await self._device_queue.get()
-                    if device.address not in discovered_devices:
-                        discovered_devices.add(device.address)
-                        yield device
-        except TimeoutError:
-            pass
-        await self.stop()
 
 
 class Z407Remote:

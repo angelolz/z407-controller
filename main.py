@@ -1,6 +1,8 @@
 import asyncio
 from fastapi import FastAPI, HTTPException
 from z407 import Z407Remote
+from bleak import BleakScanner, BleakClient, BleakGATTCharacteristic
+SERVICE_UUID = "0000fdc2-0000-1000-8000-00805f9b34fb"
 
 app = FastAPI()
 z407_remote = None
@@ -8,12 +10,40 @@ z407_remote = None
 @app.on_event("startup")
 async def startup_event():
     global z407_remote
-    async for device in Z407Remote.devices():
-        z407_remote = Z407Remote(device.address)
-        await z407_remote.connect()
-        break
-    if not z407_remote:
-        raise RuntimeError("Z407 not found.")
+    max_attempts = 5
+    attempt = 0
+
+    # Create a single scanner outside the loop
+    scanner = AsyncBleakScanner(service_uuids=[SERVICE_UUID])
+
+    await scanner.start()
+    try:
+        while attempt < max_attempts:
+            try:
+                print(f"Attempt {attempt + 1} to find Z407...")
+
+                try:
+                    device = await asyncio.wait_for(scanner._device_queue.get(), timeout=10)
+                except asyncio.TimeoutError:
+                    device = None
+
+                if device:
+                    print(f"Found device {device.name} ({device.address})")
+                    z407_remote = Z407Remote(device.address)
+                    await z407_remote.connect()
+                    print(f"Connected to Z407 on attempt {attempt + 1}")
+                    return  # success!
+
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed: {e}")
+
+            attempt += 1
+            await asyncio.sleep(2)  # Short cooldown between attempts
+
+    finally:
+        await scanner.stop()
+
+    raise RuntimeError("Failed to connect to Z407 after multiple attempts.")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -89,3 +119,33 @@ async def reset():
         return {"status": "reset device"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class AsyncBleakScanner(BleakScanner):
+    _device_queue: asyncio.Queue
+
+    def __init__(self, **kwargs):
+        super().__init__(self._device_found, **kwargs)
+        self._device_queue = asyncio.Queue()
+
+    async def _device_found(self, device, advertisement_data):
+        await self._device_queue.put(device)
+
+    async def async_discover(self, timeout=60):
+        discovered_devices = set()
+        await self.start()
+        try:
+            async with asyncio.timeout(timeout):
+                while True:
+                    try:
+                        # Timeout 5 seconds waiting for a device each time
+                        device = await asyncio.wait_for(self._device_queue.get(), timeout=5)
+                        if device.address not in discovered_devices:
+                            discovered_devices.add(device.address)
+                            yield device
+                    except asyncio.TimeoutError:
+                        # No device found in 5 seconds — keep looping until overall timeout
+                        pass
+        except TimeoutError:
+            pass
+        finally:
+            await self.stop()
