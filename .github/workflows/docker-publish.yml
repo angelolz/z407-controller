@@ -34,3 +34,5 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ghcr.io/${{ github.repository }}:latest
+          cache-from: type=gha,scope=${{ github.workflow }}
+          cache-to: type=gha,scope=${{ github.workflow }},mode=max
