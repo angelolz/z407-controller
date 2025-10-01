@@ -1,7 +1,9 @@
 # Logitech Z407 Remote Controller API
-This is an API server based off the work from [freundTech's reverse engineering work](https://github.com/freundTech/logi-z407-reverse-engineering). Huge props to them for the amazing work there.
+
+This is an API server based off the work from [freundTech's reverse engineering work](https://github.com/freundTech/logi-z407-reverse-engineering). Huge props to them for the amazing work there. I was able to successfully run this on my Raspberry Pi 5 using the `docker-compose.yml` file.
 
 # Setup
+
 1. Clone this repo. Navigate to the folder created for the repo.
 2. Set up a virtual environment.
     ```
