@@ -65,32 +65,7 @@ class Z407Remote:
         await self._send_command("8300")
 
     @staticmethod
-    async def _device_found(device, advertising_data):
-        pass
-
-    @staticmethod
     async def devices():
-        scanner = AsyncBleakScanner(service_uuids=[SERVICE_UUID])
-        async for device in scanner.async_discover():
+        devices = await BleakScanner.discover(service_uuids=[SERVICE_UUID])
+        for device in devices:
             yield Z407Remote(device)
-
-
-async def main():
-    start = datetime.now()
-    first_device = None
-    while first_device is None:
-        async for device in Z407Remote.devices():
-            first_device = device
-            break
-    end = datetime.now()
-
-    print("Took ", end - start)
-
-    if first_device is None:
-        print("No Z407 speaker found. Is your original remote still connected?")
-
-    async with first_device:
-        await first_device.play_pause()
-
-if __name__ == "__main__":
-    asyncio.run(main())
