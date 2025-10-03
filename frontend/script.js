@@ -16,27 +16,26 @@ async function checkStatus() {
             statusIndicator.textContent = "Disconnected";
             statusIndicator.classList.remove("connected");
             statusIndicator.classList.add("disconnected");
-            connectionMode.textContent = "";
+            connectionMode.textContent = "unknown";
+            bluetoothStatus.innerHTML = "unknown";
         }
     } catch (error) {
         statusIndicator.textContent = "Error";
         statusIndicator.classList.remove("connected");
         statusIndicator.classList.add("disconnected");
-        connectionMode.textContent = "";
+        connectionMode.textContent = "unknown";
+        bluetoothStatus.innerHTML = "unknown";
     }
 }
 
 async function callApi(endpoint) {
     try {
-        const response = await fetch(endpoint, {
-            method: "POST",
-        });
+        const response = await fetch(endpoint, { method: "POST" });
         if (response.ok) {
             if (endpoint.startsWith("/input-")) {
                 checkStatus();
             }
         } else {
-            console.log(JSON.stringify(response));
             alert(`Error executing ${endpoint}: ${response.status}`);
         }
     } catch (error) {
