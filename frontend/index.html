@@ -1,167 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Speaker Control</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 50px;
-    }
-    .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Z407 Speaker Control</title>
+  </head>
+  <body>
 
-    h2 {
-      color: #333;
-    }
-    .button-group {
-      margin-bottom: 10px;
-      text-align: center;
-    }
+    <div class="container">
+      <div class="title"><h2>Z407 Remote Control</h2></div>
+      <div id="status-indicator">...</div>
+      <div class="status-container">
+        <div class="status">
+          <span>Connection Mode</span>
+          <span class="status-text" id="connection-mode"><i>unknown</i></span>
+        </div>
+        <div class="status">
+          <span>Bluetooth Status</span>
+          <span class="status-text" id="bluetooth-status"><b>unknown</b></span>
+        </div>
+      </div>
 
-    .title {
-      text-align: center;
-    }
-
-    #status-indicator {
-      text-align: center;
-      padding: 10px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-    }
-
-    .connected {
-      background-color: #4CAF50;
-      color: white;
-    }
-
-    .disconnected {
-      background-color: #f44336;
-      color: white;
-    }
-
-    button {
-      padding: 10px 20px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      background-color: #34acfc;
-      color: white;
-      cursor: pointer;
-      font-size: 16px;
-      transition: background-color 0.2s;
-    }
-
-    button:hover {
-      background-color: #006ab1;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #121212;
-        color: #fff;
-      }
-      .container {
-        background-color: #1e1e1e;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-      }
-      h2 {
-        color: #fff;
-      }
-      button {
-        background-color: #098ce2;
-        color: #fff;
-      }
-      button:hover {
-        background-color: #006ab1;
-      }
-    }
-
-    @media (width <= 640px) {
-      body {
-        padding: 5px;
-      }
-      
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="title"><h1>Z407 Remote Control</h1></div>
-    <div id="status-indicator"></div>
-
-    <div class="button-group">
-      <h2>Volume Control</h2>
-      <button onclick="callApi('/volume-down')">Volume Down</button>
-      <button onclick="callApi('/play-pause')">Play/Pause</button>
-      <button onclick="callApi('/volume-up')">Volume Up</button>
+      <div class="button-group">
+        <h2>Volume Control</h2>
+        <button onclick="callApi('/volume-down')">Volume Down</button>
+        <button onclick="callApi('/play-pause')">Play/Pause</button>
+        <button onclick="callApi('/volume-up')">Volume Up</button>
+      </div>
+      <div class="button-group">
+        <h2>Input Control</h2>
+        <button onclick="callApi('/input-aux')">Aux</button>
+        <button onclick="callApi('/input-usb')">USB</button>
+        <button onclick="callApi('/input-bluetooth')">Bluetooth</button>
+      </div>
+      <div class="button-group">
+        <h2>Bluetooth Control</h2>
+        <button onclick="callApi('/bt-pair')">Pair</button>
+        <button onclick="callApi('/reset')">Reset</button>
+      </div>
     </div>
-    <div class="button-group">
-      <h2>Input Control</h2>
-      <button onclick="callApi('/input-aux')">Aux</button>
-      <button onclick="callApi('/input-usb')">USB</button>
-      <button onclick="callApi('/input-bluetooth')">Bluetooth</button>
-    </div>
-    <div class="button-group">
-      <h2>Bluetooth Control</h2>
-      <button onclick="callApi('/bt-pair')">Pair</button>
-      <button onclick="callApi('/reset')">Reset</button>
-    </div>
-  </div>
-
-    <script>
-    const statusIndicator = document.getElementById('status-indicator');
-
-    async function checkStatus() {
-      try {
-        const response = await fetch('/status');
-        const data = await response.json();
-        if (data.status === 'connected') {
-          statusIndicator.textContent = 'Connected';
-          statusIndicator.classList.remove('disconnected');
-          statusIndicator.classList.add('connected');
-        } else {
-          statusIndicator.textContent = 'Disconnected';
-          statusIndicator.classList.remove('connected');
-          statusIndicator.classList.add('disconnected');
-        }
-      } catch (error) {
-        statusIndicator.textContent = 'Error';
-        statusIndicator.classList.remove('connected');
-        statusIndicator.classList.add('disconnected');
-      }
-    }
-
-    async function callApi(endpoint) {
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-        });
-        if (response.ok) {
-          // alert(`${endpoint} executed successfully`);
-        } else {
-          console.log(JSON.stringify(response));
-          alert(`Error executing ${endpoint}: ${response.status}`);
-        }
-      } catch (error) {
-        alert(`Failed to call ${endpoint}: ${error}`);
-      }
-    }
-
-    setInterval(checkStatus, 5000);
-    checkStatus();
-  </script>
-</body>
+    <script src="/script.js"></script>
+  </body>
 </html>

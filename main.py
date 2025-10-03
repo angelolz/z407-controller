@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
@@ -6,13 +7,15 @@ from z407 import Z407Remote
 from bleak import BleakScanner, BleakClient, BleakGATTCharacteristic
 SERVICE_UUID = "0000fdc2-0000-1000-8000-00805f9b34fb"
 
-app = FastAPI()
-app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
-z407_remote = None
+class NoGetLogging(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        return not (record.levelname == "INFO" and ("GET / " in message or "GET /status " in message))
 
-@app.get("/")
-async def read_index():
-    return FileResponse('frontend/index.html')
+logging.getLogger("uvicorn.access").addFilter(NoGetLogging())
+
+app = FastAPI()
+z407_remote = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -58,8 +61,8 @@ async def shutdown_event():
 @app.get("/status")
 async def status():
     if z407_remote and z407_remote.client.is_connected:
-        return {"status": "connected"}
-    return {"status": "disconnected"}
+        return {"status": "connected", "connection_mode": z407_remote.connection_mode, "bluetooth_status": z407_remote.bluetooth_status}
+    return {"status": "disconnected", "connection_mode": "disconnected", "bluetooth_status": "unknown"}
 
 @app.post("/volume-up")
 async def volume_up():
@@ -124,3 +127,5 @@ async def reset():
         return {"status": "reset device"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
