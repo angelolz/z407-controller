@@ -12,6 +12,10 @@ class NoGetLogging(logging.Filter):
         message = record.getMessage()
         return not (record.levelname == "INFO" and ("GET / " in message or "GET /status " in message))
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s [%(name)s]: %(message)s",
+)
 logging.getLogger("uvicorn.access").addFilter(NoGetLogging())
 
 app = FastAPI()
